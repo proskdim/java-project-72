@@ -1,5 +1,8 @@
 package hexlet.code;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
 
 public final class App {
@@ -9,6 +12,13 @@ public final class App {
     }
 
     private static Javalin getApp() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(getDatabaseUrl());
+
+        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+
+        BaseRepository.dataSource = dataSource;
+
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
         });
@@ -18,6 +28,10 @@ public final class App {
         });
 
         return app;
+    }
+
+    private static String getDatabaseUrl() {
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
     }
 
     private static int getPort() {
