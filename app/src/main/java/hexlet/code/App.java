@@ -8,6 +8,7 @@ import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.Env;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -30,7 +31,7 @@ public final class App {
     public static void main(String[] args) throws SQLException, IOException {
         Javalin app = getApp();
 
-        app.start(getPort());
+        app.start(Env.getPort());
     }
 
     private static Javalin getApp() throws SQLException, IOException {
@@ -64,7 +65,7 @@ public final class App {
     private static HikariDataSource getDataSource() {
         var hikariConfig = new HikariConfig();
 
-        var jdbcUrl = getDatabaseUrl();
+        var jdbcUrl = Env.getDatabaseUrl();
         hikariConfig.setJdbcUrl(jdbcUrl);
 
         if (jdbcUrl.startsWith("jdbc:h2")) {
@@ -78,8 +79,8 @@ public final class App {
         return new HikariDataSource(hikariConfig);
     }
 
-    private static void initSchema(HikariDataSource dataSource, String schemaFileName) throws IOException, SQLException {
-        var sql = readResourceFile(schemaFileName);
+    private static void initSchema(HikariDataSource dataSource, String schemaName) throws IOException, SQLException {
+        var sql = readResourceFile(schemaName);
         LOGGER.info(sql);
 
         try (
@@ -103,14 +104,5 @@ public final class App {
         var templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
 
         return templateEngine;
-    }
-
-    private static String getDatabaseUrl() {
-        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
-    }
-
-    private static int getPort() {
-        var port = System.getenv().getOrDefault("PORT", "8080");
-        return Integer.valueOf(port);
     }
 }
