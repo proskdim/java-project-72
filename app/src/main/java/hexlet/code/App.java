@@ -5,16 +5,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.UrlController;
 import hexlet.code.dto.BasePage;
-import hexlet.code.dto.UrlPage;
-import hexlet.code.dto.UrlsPage;
-import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
-import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.Env;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
-import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
@@ -56,42 +49,9 @@ public final class App {
             ctx.render("index.jte", model("page", page));
         });
 
-        app.get(NamedRoutes.urlsPath(), ctx -> {
-            var page = new UrlsPage(UrlRepository.getEntities());
-
-            page.setFlash(ctx.consumeSessionAttribute("flash"));
-
-            ctx.render("urls/index.jte", model("page", page));
-        });
-
-        app.get(NamedRoutes.urlPath("{id}"), ctx -> {
-           var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(0L);
-           var url = UrlRepository.find(id)
-                   .orElseThrow(() -> new NotFoundResponse());
-
-           var page = new UrlPage(url);
-           ctx.render("urls/show.jte", model("page", page));
-        });
-
-        app.post(NamedRoutes.urlsPath(), ctx -> {
-            var url = ctx.formParamAsClass("url", String.class).get().trim();
-
-            try {
-                var uri = new URI(url).toURL().toString();
-
-                if (UrlRepository.findByName(uri).isEmpty()) {
-                    UrlRepository.insert(new Url(uri.toString()));
-                    ctx.sessionAttribute("flash", "Страница успешно добавлена");
-                } else {
-                    ctx.sessionAttribute("flash", "Страница уже существует");
-                }
-
-                ctx.redirect(NamedRoutes.urlsPath());
-            } catch (IllegalArgumentException | MalformedURLException | URISyntaxException e) {
-                ctx.sessionAttribute("flash", "Некорректный URL");
-                ctx.redirect(NamedRoutes.rootPath());
-            }
-        });
+        app.get(NamedRoutes.urlsPath(), UrlController::index);
+        app.get(NamedRoutes.urlPath("{id}"), UrlController::show);
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
 
         return app;
     }
