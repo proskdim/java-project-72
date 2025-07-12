@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public final class Url {
 
     @ToString.Include
     private String name;
-    private LocalDateTime createdAt;
+    private Timestamp createdAt;
 
     public Url(String urlName) {
         this.name = urlName;

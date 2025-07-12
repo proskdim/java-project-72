@@ -74,7 +74,7 @@ public final class App {
         });
 
         app.post(NamedRoutes.urlsPath(), ctx -> {
-            var url = ctx.formParam("url");
+            var url = ctx.formParamAsClass("url", String.class).get().trim();
 
             try {
                 var uri = new URI(url).toURL().toString();

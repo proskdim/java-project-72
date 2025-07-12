@@ -6,16 +6,13 @@
 page = page,
 content = @`
     <h1>Сайты</h1>
-    @if(page.getUrls().isEmpty())
-        <p>Сайтов пока нет</p>
-    @else
         <table class="table table-bordered table-hover mt-3">
             <thead>
             <tr>
-                <th class="col-1">ID</th>
-                <th>Имя</th>
-                <th class="col-2">Последняя проверка</th>
-                <th class="col-1">Код ответа</th>
+                <th class="col-1 small">ID</th>
+                <th class="small">Имя</th>
+                <th class="col-2 small">Последняя проверка</th>
+                <th class="col-1 small">Код ответа</th>
             </tr>
             </thead>
             <tbody>
@@ -29,7 +26,5 @@ content = @`
             @endfor
             </tbody>
         </table>
-
-    @endif
 `
 )

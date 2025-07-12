@@ -40,8 +40,6 @@
             <div class="container-fluid bg-light p-5">
                 <div class="row">
                     <div class="col-md-10 col-lg-8 mx-auto">
-                        <h1 class="display-3 mb-0">Анализатор страниц</h1>
-                        <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
                         ${content}
                     </div>
                 </div>

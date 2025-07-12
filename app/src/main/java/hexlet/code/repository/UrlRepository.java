@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public final class UrlRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+                var createdAt = resultSet.getTimestamp("created_at");
                 var entity = new Url(name);
 
                 entity.setId(id);
@@ -83,7 +84,7 @@ public final class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+                var createdAt = resultSet.getTimestamp("created_at");
 
                 var entity = new Url(name);
                 entity.setId(id);
@@ -107,13 +108,13 @@ public final class UrlRepository extends BaseRepository {
             LOGGER.atDebug().log(statement.toString());
             statement.executeUpdate();
 
-            var createdAt = LocalDateTime.now();
+            var timeStamp = new Timestamp(System.currentTimeMillis());
             var generatedKeys = statement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
                 var id = generatedKeys.getLong("id");
                 entity.setId(id);
-                entity.setCreatedAt(createdAt);
+                entity.setCreatedAt(timeStamp);
             }
         }
     }

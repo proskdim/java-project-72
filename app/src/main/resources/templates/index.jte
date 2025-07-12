@@ -5,6 +5,9 @@
 @template.layout.page(
 page = page,
 content = @`
+    <h1 class="display-3 mb-0">Анализатор страниц</h1>
+    <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
+
     <form action="${NamedRoutes.urlsPath()}" method="post">
         <div class="row">
             <div class="col">
@@ -18,5 +21,7 @@ content = @`
             </div>
         </div>
     </form>
+
+    <p class ="mt-2 mb-0 text-muted">Пример: https://www.example.com</p>
 `
 )
