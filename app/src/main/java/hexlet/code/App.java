@@ -5,40 +5,102 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.dto.UrlsPage;
+import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+import static io.javalin.rendering.template.TemplateUtil.model;
 
 public final class App {
-    public static void main(String[] args) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+    private static final HikariDataSource DATA_SOURCE = getDataSource();
+
+    public static void main(String[] args) throws SQLException, IOException {
         Javalin app = getApp();
-        app.start("0.0.0.0", getPort());
+
+        app.start(getPort());
     }
 
-    private static Javalin getApp() {
-        HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getDatabaseUrl());
-
-        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
-
-        BaseRepository.dataSource = dataSource;
+    private static Javalin getApp() throws SQLException, IOException {
+        initSchema(DATA_SOURCE, "schema.sql");
+        BaseRepository.dataSource = DATA_SOURCE;
 
         Javalin app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
-        app.get("/", ctx -> {
-            ctx.render("index.jte");
+        app.get(NamedRoutes.rootPath(), ctx -> {
+            ctx.render("urls/build.jte");
+        });
+
+        app.get(NamedRoutes.urlsPath(), ctx -> {
+            var page = new UrlsPage(List.of(new Url("https://www.example.com")));
+            page.setFlash(ctx.consumeSessionAttribute("flash"));
+
+            ctx.render("urls/index.jte", model("page", page));
+        });
+
+        app.post(NamedRoutes.urlsPath(), ctx -> {
+            ctx.sessionAttribute("flash", "Страница успешно добавлена");
+            ctx.redirect(NamedRoutes.urlsPath());
         });
 
         return app;
     }
 
+    private static HikariDataSource getDataSource() {
+        var hikariConfig = new HikariConfig();
+
+        var jdbcUrl = getDatabaseUrl();
+        hikariConfig.setJdbcUrl(jdbcUrl);
+
+        if (jdbcUrl.startsWith("jdbc:h2")) {
+            hikariConfig.setDriverClassName("org.h2.Driver");
+        } else if (jdbcUrl.startsWith("jdbc:postgresql")) {
+            hikariConfig.setDriverClassName("org.postgresql.Driver");
+        } else {
+            throw new RuntimeException("Unknown database driver");
+        }
+
+        return new HikariDataSource(hikariConfig);
+    }
+
+    private static void initSchema(HikariDataSource dataSource, String schemaFileName) throws IOException, SQLException {
+        var sql = readResourceFile(schemaFileName);
+        LOGGER.info(sql);
+
+        try (
+                var connection = dataSource.getConnection();
+                var statement = connection.createStatement()
+        ) {
+            statement.execute(sql);
+        }
+    }
+
+    private static String readResourceFile(String fileName) throws IOException {
+        var inputStream = App.class.getClassLoader().getResourceAsStream(fileName);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
     private static TemplateEngine createTemplateEngine() {
-        ClassLoader classLoader = App.class.getClassLoader();
-        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
-        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+        var classLoader = App.class.getClassLoader();
+        var codeResolver = new ResourceCodeResolver("templates", classLoader);
+        var templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
 
         return templateEngine;
     }
@@ -48,7 +110,7 @@ public final class App {
     }
 
     private static int getPort() {
-        String port = System.getenv().getOrDefault("PORT", "8080");
+        var port = System.getenv().getOrDefault("PORT", "8080");
         return Integer.valueOf(port);
     }
 }
