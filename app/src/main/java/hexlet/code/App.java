@@ -18,7 +18,6 @@ import io.javalin.rendering.template.JavalinJte;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Name;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,7 +46,7 @@ public final class App {
         });
 
         app.get(NamedRoutes.rootPath(), ctx -> {
-            ctx.render("urls/build.jte");
+            ctx.render("index.jte");
         });
 
         app.get(NamedRoutes.urlsPath(), ctx -> {
