@@ -5,22 +5,25 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.Env;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
+import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Name;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.stream.Collectors;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
@@ -48,13 +51,27 @@ public final class App {
         });
 
         app.get(NamedRoutes.urlsPath(), ctx -> {
-            var page = new UrlsPage(List.of(new Url("https://www.example.com")));
+            var page = new UrlsPage(UrlRepository.getEntities());
+
             page.setFlash(ctx.consumeSessionAttribute("flash"));
 
             ctx.render("urls/index.jte", model("page", page));
         });
 
+        app.get(NamedRoutes.urlPath("{id}"), ctx -> {
+           var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(0L);
+           var url = UrlRepository.find(id)
+                   .orElseThrow(() -> new NotFoundResponse());
+
+           var page = new UrlPage(url);
+           ctx.render("urls/show.jte", model("page", page));
+        });
+
         app.post(NamedRoutes.urlsPath(), ctx -> {
+            var url = ctx.formParam("url");
+
+            UrlRepository.insert(new Url(url));
+
             ctx.sessionAttribute("flash", "Страница успешно добавлена");
             ctx.redirect(NamedRoutes.urlsPath());
         });
