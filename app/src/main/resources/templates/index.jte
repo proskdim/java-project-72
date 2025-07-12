@@ -1,6 +1,9 @@
+@import hexlet.code.dto.BasePage
 @import hexlet.code.util.NamedRoutes
+@param BasePage page
 
 @template.layout.page(
+page = page,
 content = @`
     <form action="${NamedRoutes.urlsPath()}" method="post">
         <div class="row">

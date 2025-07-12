@@ -41,6 +41,35 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
+    public static Optional<Url> findByName(String name) throws SQLException {
+        if (name == null) {
+            return Optional.empty();
+        }
+
+        var sql = "SELECT * FROM %s WHERE name = ?".formatted(TABLE_NAME);
+
+        try (
+                var connection = dataSource.getConnection();
+                var statement = connection.prepareStatement(sql)
+        ) {
+            statement.setString(1, name);
+            LOGGER.atDebug().log(statement.toString());
+            var resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                var id = resultSet.getLong("id");
+                var urlName = resultSet.getString("name");
+                var entity = new Url(urlName);
+
+                entity.setId(id);
+
+                return Optional.of(entity);
+            }
+
+            return Optional.empty();
+        }
+    }
+
     public static List<Url> getEntities() throws SQLException {
         try (
                 var connection = dataSource.getConnection();

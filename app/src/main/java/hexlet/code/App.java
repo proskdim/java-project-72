@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.dto.BasePage;
 import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
@@ -21,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
@@ -46,7 +50,10 @@ public final class App {
         });
 
         app.get(NamedRoutes.rootPath(), ctx -> {
-            ctx.render("index.jte");
+            var page = new BasePage();
+            page.setFlash(ctx.consumeSessionAttribute("flash"));
+
+            ctx.render("index.jte", model("page", page));
         });
 
         app.get(NamedRoutes.urlsPath(), ctx -> {
@@ -69,10 +76,21 @@ public final class App {
         app.post(NamedRoutes.urlsPath(), ctx -> {
             var url = ctx.formParam("url");
 
-            UrlRepository.insert(new Url(url));
+            try {
+                var uri = new URI(url).toURL().toString();
 
-            ctx.sessionAttribute("flash", "Страница успешно добавлена");
-            ctx.redirect(NamedRoutes.urlsPath());
+                if (UrlRepository.findByName(uri).isEmpty()) {
+                    UrlRepository.insert(new Url(uri.toString()));
+                    ctx.sessionAttribute("flash", "Страница успешно добавлена");
+                } else {
+                    ctx.sessionAttribute("flash", "Страница уже существует");
+                }
+
+                ctx.redirect(NamedRoutes.urlsPath());
+            } catch (IllegalArgumentException | MalformedURLException | URISyntaxException e) {
+                ctx.sessionAttribute("flash", "Некорректный URL");
+                ctx.redirect(NamedRoutes.rootPath());
+            }
         });
 
         return app;
