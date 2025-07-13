@@ -19,17 +19,17 @@ public final class AppService {
     private final Environment environment;
     private final DataSourceProvider dataSourceProvider;
 
-    private final Logger LOGGER = LoggerFactory.getLogger(AppService.class);
+    private final Logger logger = LoggerFactory.getLogger(AppService.class);
 
     public Javalin getApp() throws SQLException, IOException {
         BaseRepository.dataSource = dataSourceProvider.initialize(environment.getDatabaseUrl());
-        LOGGER.info("Database initialized");
+        logger.info("Database initialized");
 
         var app = Javalin.create(config -> configurator.configure(config));
-        LOGGER.info("App configured");
+        logger.info("App configured");
 
         router.route(app);
-        LOGGER.info("App routed");
+        logger.info("App routed");
 
         return app;
     }
