@@ -18,6 +18,7 @@ repositories {
 dependencies {
     // javalin
     implementation("io.javalin:javalin:6.1.3")
+    implementation("io.javalin:javalin-bundle:6.6.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
 
     //database

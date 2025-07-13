@@ -32,9 +32,6 @@ public final class UrlController {
         ctx.render("urls/show.jte", model("page", page));
     }
 
-    public static void build(Context ctx) {
-    }
-
     public static void create(Context ctx) throws SQLException {
         var url = ctx.formParamAsClass("url", String.class).get().trim();
 
