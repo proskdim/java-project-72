@@ -40,6 +40,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    environment("APP_ENV", "test")
 }
 
 tasks.jacocoTestReport { reports { xml.required.set(true) } }
@@ -51,6 +52,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
     }
 }
+
 
 application  {
     mainClass = "hexlet.code.App"

@@ -11,6 +11,14 @@ public final class Environment {
     }
 
     private String fetchEnv(String key, String defaultValue) {
-        return System.getenv().getOrDefault(key, defaultValue);
+        if (isTestEnvironment()) {
+            return defaultValue;
+        } else {
+            return System.getenv().getOrDefault(key, defaultValue);
+        }
+    }
+
+    private boolean isTestEnvironment() {
+        return "test".equals(System.getenv("APP_ENV"));
     }
 }
