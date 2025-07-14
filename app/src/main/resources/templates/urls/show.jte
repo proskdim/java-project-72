@@ -28,5 +28,30 @@ content = @`
         <input type="hidden" name="urlId" value="${page.getUrl().getId()}">
         <button type="submit" class="btn btn-primary">Запустить проверку</button>
     </form>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead>
+        <tr>
+            <th class="col-1">ID</th>
+            <th class="col-1">Код ответа</th>
+            <th>title</th>
+            <th>h1</th>
+            <th>description</th>
+            <th class="col-2">Дата проверки</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(var urlCheck : page.getChecks())
+            <tr>
+                <td>${urlCheck.getId()}</td>
+                <td>${urlCheck.getStatusCode()}</td>
+                <td>${urlCheck.getTitle()}</td>
+                <td>${urlCheck.getH1()}</td>
+                <td>${urlCheck.getDescription()}</td>
+                <td>${page.formatDate(urlCheck.getCreatedAt())}</td>
+            </tr>
+        @endfor
+        </tbody>
+    </table>
 `
 )

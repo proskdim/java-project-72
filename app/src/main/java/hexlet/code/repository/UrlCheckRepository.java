@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,9 @@ public final class UrlCheckRepository extends BaseRepository {
 
     public void insert(UrlCheck entity) throws SQLException {
         var sql = """
-            INSERT INTO %s (status_code, title, h1, description, url_id, created_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
-            """.formatted(TABLE_NAME);
+                INSERT INTO %s (status_code, title, h1, description, url_id, created_at)
+                VALUES (?, ?, ?, ?, ?, NOW())
+                """.formatted(TABLE_NAME);
 
         try (
                 var connection = dataSource.getConnection();
@@ -32,7 +33,7 @@ public final class UrlCheckRepository extends BaseRepository {
             statement.setString(3, entity.getH1());
             statement.setString(4, entity.getDescription());
             statement.setLong(5, entity.getUrlId());
-            LOGGER.atDebug().log(statement.toString());
+            LOGGER.info(statement.toString());
             statement.executeUpdate();
             var generatedKeys = statement.getGeneratedKeys();
             var timeStamp = new Timestamp(System.currentTimeMillis());
@@ -42,6 +43,69 @@ public final class UrlCheckRepository extends BaseRepository {
                 entity.setId(id);
                 entity.setCreatedAt(timeStamp);
             }
+        }
+    }
+
+    public List<UrlCheck> getEntities() throws SQLException {
+        try (
+                var connection = dataSource.getConnection();
+                var statement = connection.createStatement()
+        ) {
+            var sql = "SELECT * FROM %s".formatted(TABLE_NAME);
+            statement.executeQuery(sql);
+            var resultSet = statement.getResultSet();
+            var entities = new ArrayList<UrlCheck>();
+
+            while (resultSet.next()) {
+                var entity = new UrlCheck(
+                        resultSet.getInt("status_code"),
+                        resultSet.getString("title"),
+                        resultSet.getString("h1"),
+                        resultSet.getString("description"),
+                        resultSet.getLong("url_id")
+                );
+
+                entity.setId(resultSet.getLong("id"));
+                entity.setCreatedAt(resultSet.getTimestamp("created_at"));
+
+                entities.add(entity);
+            }
+
+            return entities;
+        }
+    }
+
+    public static List<UrlCheck> findChecksByUrlId(Long urlId) throws SQLException {
+        var sql = """
+                SELECT *
+                FROM %s
+                WHERE url_id = ?
+                """.formatted(TABLE_NAME);
+
+        try (
+                var connection = dataSource.getConnection();
+                var statement = connection.prepareStatement(sql)
+        ) {
+            statement.setLong(1, urlId);
+            LOGGER.info(statement.toString());
+            var resultSet = statement.executeQuery();
+            var entities = new ArrayList<UrlCheck>();
+
+            while (resultSet.next()) {
+                var entity = new UrlCheck(
+                        resultSet.getInt("status_code"),
+                        resultSet.getString("title"),
+                        resultSet.getString("h1"),
+                        resultSet.getString("description"),
+                        resultSet.getLong("url_id")
+                );
+               entity.setId(resultSet.getLong("id"));
+               entity.setCreatedAt(resultSet.getTimestamp("created_at"));
+
+                entities.add(entity);
+            }
+
+            return entities;
         }
     }
 
@@ -62,7 +126,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 index += 1;
             }
 
-            LOGGER.atDebug().log(statement.toString());
+            LOGGER.info(statement.toString());
             var resultSet = statement.executeQuery();
             var entities = new HashMap<Long, UrlCheck>();
 
@@ -77,7 +141,8 @@ public final class UrlCheckRepository extends BaseRepository {
 
                 entity.setId(resultSet.getLong("id"));
                 entity.setCreatedAt(resultSet.getTimestamp("created_at"));
-                entities.put(entity.getId(), entity);
+
+                entities.put(entity.getUrlId(), entity);
             }
 
             return entities;
@@ -90,22 +155,22 @@ public final class UrlCheckRepository extends BaseRepository {
                 .collect(Collectors.joining(","));
 
         return """
-            WITH last_checks AS (
-                SELECT DISTINCT ON (url_id)
-                    url_id,
-                    id AS check_id,
-                    created_at
+                WITH last_checks AS (
+                    SELECT DISTINCT ON (url_id)
+                        url_id,
+                        id AS check_id,
+                        created_at
+                    FROM %s
+                    GROUP by url_id, check_id
+                    order by url_id, created_at DESC
+                )
+                
+                SELECT *
                 FROM %s
-                GROUP by url_id, check_id
-                order by url_id, created_at DESC
-            )
-
-            SELECT *
-            FROM %s
-            WHERE id IN (
-                SELECT check_id
-                FROM last_checks
-                WHERE url_id IN (%s)
-            )""".formatted(TABLE_NAME, TABLE_NAME, placeholder);
+                WHERE id IN (
+                    SELECT check_id
+                    FROM last_checks
+                    WHERE url_id IN (%s)
+                )""".formatted(TABLE_NAME, TABLE_NAME, placeholder);
     }
 }
