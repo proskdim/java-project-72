@@ -26,6 +26,10 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.zaxxer:HikariCP:6.3.0")
 
+    //rest
+    implementation("com.konghq:unirest-java:3.14.5")
+    implementation("org.jsoup:jsoup:1.18.1")
+
     // template
     implementation("io.javalin:javalin-rendering:6.1.3")
     implementation("gg.jte:jte:3.1.9")

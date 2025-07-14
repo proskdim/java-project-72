@@ -6,25 +6,30 @@
 page = page,
 content = @`
     <h1>Сайты</h1>
-        <table class="table table-bordered table-hover mt-3">
-            <thead>
+    <table class="table table-bordered table-hover mt-3">
+        <thead>
+        <tr>
+            <th class="col-1 small">ID</th>
+            <th class="small">Имя</th>
+            <th class="col-2 small">Последняя проверка</th>
+            <th class="col-1 small">Код ответа</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(var url : page.getUrls())
             <tr>
-                <th class="col-1 small">ID</th>
-                <th class="small">Имя</th>
-                <th class="col-2 small">Последняя проверка</th>
-                <th class="col-1 small">Код ответа</th>
+                <td>${url.getId()}</td>
+                <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
+                @if(page.getChecks().isEmpty())
+                    <td></td>
+                    <td></td>
+                @else
+                    <td>${page.formatDate(page.getChecks().get(url.getId()).getCreatedAt())}</td>
+                    <td>${page.getChecks().get(url.getId()).getStatusCode()}</td>
+                @endif
             </tr>
-            </thead>
-            <tbody>
-            @for(var url : page.getUrls())
-                <tr>
-                    <td>${url.getId()}</td>
-                    <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            @endfor
-            </tbody>
-        </table>
+        @endfor
+        </tbody>
+    </table>
 `
 )

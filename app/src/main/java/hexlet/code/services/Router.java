@@ -1,5 +1,6 @@
 package hexlet.code.services;
 
+import hexlet.code.controller.UrlCheckController;
 import hexlet.code.controller.UrlController;
 import hexlet.code.dto.BasePage;
 import hexlet.code.util.NamedRoutes;
@@ -19,5 +20,6 @@ public final class Router {
         app.get(NamedRoutes.urlsPath(), UrlController::index);
         app.get(NamedRoutes.urlPath("{id}"), UrlController::show);
         app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.post(NamedRoutes.urlCheckPath("{id}"), UrlCheckController::create);
     }
 }
