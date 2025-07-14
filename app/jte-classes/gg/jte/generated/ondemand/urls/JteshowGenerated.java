@@ -1,5 +1,5 @@
 package gg.jte.generated.ondemand.urls;
-import hexlet.code.dto.UrlPage;
+import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.util.NamedRoutes;
 public final class JteshowGenerated {
 	public static final String JTE_NAME = "urls/show.jte";

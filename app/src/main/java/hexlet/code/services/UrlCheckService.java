@@ -4,6 +4,8 @@ import hexlet.code.model.Url;
 import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
+import hexlet.code.services.http.HttpClient;
+import hexlet.code.services.http.UnirestHttpClient;
 import kong.unirest.Unirest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +21,11 @@ import java.sql.SQLException;
 public final class UrlCheckService {
     private final UrlRepository urlRepository;
     private final UrlCheckRepository checkRepository;
+    private final HttpClient http;
 
     public UrlCheck check(Long urlId) throws Exception {
         var url = getUrl(urlId);
-        var response = Unirest.get(url.getName()).asString();
+        var response = http.get(url.getName());
         var statusCode = response.getStatus();
         var responseBody = Jsoup.parse(response.getBody());
         var result = buildUrlCheck(urlId, statusCode, responseBody);

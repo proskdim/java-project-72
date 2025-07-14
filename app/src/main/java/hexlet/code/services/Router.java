@@ -1,25 +1,35 @@
 package hexlet.code.services;
 
+import hexlet.code.controller.HomeController;
 import hexlet.code.controller.UrlCheckController;
 import hexlet.code.controller.UrlController;
-import hexlet.code.dto.BasePage;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
+import lombok.AllArgsConstructor;
 
-import static io.javalin.rendering.template.TemplateUtil.model;
-
+@AllArgsConstructor
 public final class Router {
+    private final ServiceContainer container;
+
     public void route(Javalin app) {
-        app.get(NamedRoutes.rootPath(), ctx -> {
-            var page = new BasePage();
-            page.setFlash(ctx.consumeSessionAttribute("flash"));
+        app.get(NamedRoutes.rootPath(), homeController()::index);
 
-            ctx.render("index.jte", model("page", page));
-        });
+        app.get(NamedRoutes.urlsPath(), urlController()::index);
+        app.get(NamedRoutes.urlPath("{id}"), urlController()::show);
+        app.post(NamedRoutes.urlsPath(), urlController()::create);
 
-        app.get(NamedRoutes.urlsPath(), UrlController::index);
-        app.get(NamedRoutes.urlPath("{id}"), UrlController::show);
-        app.post(NamedRoutes.urlsPath(), UrlController::create);
-        app.post(NamedRoutes.urlCheckPath("{id}"), UrlCheckController::create);
+        app.post(NamedRoutes.urlCheckPath("{id}"), checkController()::create);
+    }
+
+    private HomeController homeController() {
+        return container.homeController();
+    }
+
+    private UrlController urlController() {
+        return container.urlController();
+    }
+
+    private UrlCheckController checkController() {
+        return container.urlCheckController();
     }
 }

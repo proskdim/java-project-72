@@ -1,4 +1,4 @@
-@import hexlet.code.dto.UrlPage
+@import hexlet.code.dto.urls.UrlPage
 @import hexlet.code.util.NamedRoutes
 @param UrlPage page
 
