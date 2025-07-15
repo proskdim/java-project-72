@@ -1,9 +1,9 @@
-FROM gradle:8.13-jdk23
-
+FROM openjdk:23-jdk-bookworm AS build
 WORKDIR /app
-
 COPY /app .
+RUN ./gradlew installDist --no-daemon --warning-mode all
 
-RUN ["./gradlew", "clean", "build"]
 
-CMD ["./gradlew", "run"]
+FROM openjdk:23-jdk-bookworm AS runner
+COPY --from=build /app/build/install/app /app
+CMD ["/app/bin/app"]
