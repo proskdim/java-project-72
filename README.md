@@ -20,3 +20,6 @@ Page Analyzer - сайт, который анализирует указанны
 1. Фронтенд (Bootstrap, CDN).
 2. Фреймворк Javalin (Маршрутизация, Представление).
 3. База данных (JDBC).
+
+
+[![page](app/docs/images/page.png)](app/docs/images/page.png)
