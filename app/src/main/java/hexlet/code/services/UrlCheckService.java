@@ -5,8 +5,6 @@ import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.services.http.HttpClient;
-import hexlet.code.services.http.UnirestHttpClient;
-import kong.unirest.Unirest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

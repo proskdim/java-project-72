@@ -1,11 +1,13 @@
 package hexlet.code;
 
 import hexlet.code.model.Url;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.services.AppService;
 import hexlet.code.services.Configurator;
 import hexlet.code.services.DataSourceProvider;
 import hexlet.code.services.Router;
+import hexlet.code.services.ServiceContainer;
 import hexlet.code.util.Environment;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
@@ -25,12 +27,13 @@ public final class AppTest {
     @BeforeEach
     public void setUp() throws IOException, SQLException {
         app = new AppService(
-                new Router(),
+                new Router(new ServiceContainer()),
                 new Configurator(),
                 new Environment(),
                 new DataSourceProvider()
         ).getApp();
 
+        UrlCheckRepository.removeAll();
         UrlRepository.removeAll();
     }
 

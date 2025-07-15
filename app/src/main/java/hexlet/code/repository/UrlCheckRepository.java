@@ -99,8 +99,8 @@ public final class UrlCheckRepository extends BaseRepository {
                         resultSet.getString("description"),
                         resultSet.getLong("url_id")
                 );
-               entity.setId(resultSet.getLong("id"));
-               entity.setCreatedAt(resultSet.getTimestamp("created_at"));
+                entity.setId(resultSet.getLong("id"));
+                entity.setCreatedAt(resultSet.getTimestamp("created_at"));
 
                 entities.add(entity);
             }
@@ -164,7 +164,6 @@ public final class UrlCheckRepository extends BaseRepository {
                     GROUP by url_id, check_id
                     order by url_id, created_at DESC
                 )
-                
                 SELECT *
                 FROM %s
                 WHERE id IN (
@@ -172,5 +171,16 @@ public final class UrlCheckRepository extends BaseRepository {
                     FROM last_checks
                     WHERE url_id IN (%s)
                 )""".formatted(TABLE_NAME, TABLE_NAME, placeholder);
+    }
+
+
+    public static void removeAll() throws SQLException {
+        var sql = "TRUNCATE TABLE " + TABLE_NAME;
+
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+            connection.commit();
+        }
     }
 }

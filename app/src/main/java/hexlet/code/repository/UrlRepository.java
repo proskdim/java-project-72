@@ -119,12 +119,12 @@ public final class UrlRepository extends BaseRepository {
     }
 
     public static void removeAll() throws SQLException {
-        var sql = "TRUNCATE TABLE %s".formatted(TABLE_NAME);
+        var sql = "DELETE FROM " + TABLE_NAME;
 
         try (var connection = dataSource.getConnection();
              var statement = connection.createStatement()) {
-            LOGGER.atDebug().log(statement.toString());
-            statement.execute(sql);
+            statement.executeUpdate(sql);
+            connection.commit();
         }
     }
 }
