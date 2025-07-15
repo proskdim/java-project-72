@@ -32,12 +32,12 @@ content = @`
     <table class="table table-bordered table-hover mt-3">
         <thead>
         <tr>
-            <th class="col-1">ID</th>
-            <th class="col-1">Код ответа</th>
-            <th>title</th>
-            <th>h1</th>
-            <th>description</th>
-            <th class="col-2">Дата проверки</th>
+            <th class="col-1 small">ID</th>
+            <th class="col-1 small">Код ответа</th>
+            <th class="small">title</th>
+            <th class="small">h1</th>
+            <th class="small">description</th>
+            <th class="col-2 small">Дата проверки</th>
         </tr>
         </thead>
         <tbody>
