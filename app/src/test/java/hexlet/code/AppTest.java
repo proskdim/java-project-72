@@ -14,11 +14,13 @@ import hexlet.code.util.Environment;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,7 +51,7 @@ public final class AppTest {
     public void testMainPage() {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/");
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
             assertTrue(response.body().string().contains("Анализатор страниц"));
         });
     }
@@ -58,7 +60,7 @@ public final class AppTest {
     public void testUrlsPage() {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls");
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
         });
     }
 
@@ -70,7 +72,7 @@ public final class AppTest {
             UrlRepository.insert(url);
 
             var response = client.get("/urls/" + url.getId());
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
             assertTrue(response.body().string().contains(urlName));
         });
     }
@@ -79,7 +81,7 @@ public final class AppTest {
     void testUrlNotFound() throws Exception {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls/999999");
-            assertEquals(response.code(), 404);
+            assertEquals(404, response.code());
         });
     }
 
@@ -89,7 +91,7 @@ public final class AppTest {
             var url = "https://example.com/";
             var requestBody = "url=" + url;
             var response = client.post("/urls", requestBody);
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
             assertTrue(response.body().string().contains(url));
         });
     }
@@ -101,7 +103,7 @@ public final class AppTest {
             var requestBody = "url=" + invalidUrl;
             var response = client.post("/urls", requestBody);
 
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
             assertFalse(response.body().string().contains(invalidUrl));
         });
     }
@@ -116,7 +118,7 @@ public final class AppTest {
             var requestBody = "urlId=" + entity.getId();
 
             var response = client.post(NamedRoutes.urlCheckPath(entity.getId()), requestBody);
-            assertEquals(response.code(), 200);
+            assertEquals(200, response.code());
 
             var body = response.body().string();
 
@@ -133,7 +135,33 @@ public final class AppTest {
             var requestBody = "urlId=" + id;
             var response = client.post(NamedRoutes.urlCheckPath(id), requestBody);
 
-            assertEquals(response.code(), 404);
+            assertEquals(404, response.code());
+        });
+    }
+
+    // запустить проверку для сайта, когда на странице добавлено несколько сайтов
+    @Test
+    public void testCreateCheckUrlWithMultipleUrls() {
+        JavalinTest.test(app, (server, client) -> {
+            var urls = List.of(new Url("https://example1.com/"), new Url("https://example2.com/"));
+
+            urls.forEach(url -> {
+                try {
+                    UrlRepository.insert(url);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            var entity = urls.get(0);
+            var requestBody = "urlId=" + entity.getId();
+
+            var response1 = client.post(NamedRoutes.urlCheckPath(entity.getId()), requestBody);
+            assertEquals(200, response1.code());
+
+            var response2 = client.get(NamedRoutes.urlsPath());
+            assertEquals(200, response2.code());
+            assertTrue(response2.body().string().contains("<td>200</td>"));
         });
     }
 }

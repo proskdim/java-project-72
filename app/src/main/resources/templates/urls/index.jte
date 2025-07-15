@@ -20,7 +20,7 @@ content = @`
             <tr>
                 <td>${url.getId()}</td>
                 <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
-                @if(page.getChecks().isEmpty())
+                @if(page.getChecks().get(url.getId()) == null)
                     <td></td>
                     <td></td>
                 @else

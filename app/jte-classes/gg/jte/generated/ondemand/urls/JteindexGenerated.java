@@ -26,7 +26,7 @@ public final class JteindexGenerated {
 					jteOutput.setContext("a", null);
 					jteOutput.writeUserContent(url.getName());
 					jteOutput.writeContent("</a></td>\n                ");
-					if (page.getChecks().isEmpty()) {
+					if (page.getChecks().get(url.getId()) == null) {
 						jteOutput.writeContent("\n                    <td></td>\n                    <td></td>\n                ");
 					} else {
 						jteOutput.writeContent("\n                    <td>");
