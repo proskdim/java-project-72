@@ -7,8 +7,11 @@ import hexlet.code.services.AppService;
 import hexlet.code.services.Configurator;
 import hexlet.code.services.DataSourceProvider;
 import hexlet.code.services.Router;
-import hexlet.code.services.ServiceContainer;
+import hexlet.code.services.containers.ControllerContainer;
+import hexlet.code.services.containers.RepositoryContainer;
+import hexlet.code.services.containers.ServiceDummyContainer;
 import hexlet.code.util.Environment;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +29,13 @@ public final class AppTest {
 
     @BeforeEach
     public void setUp() throws IOException, SQLException {
+        var controllerContainer = new ControllerContainer(
+                new RepositoryContainer(),
+                new ServiceDummyContainer()
+        );
+
         app = new AppService(
-                new Router(new ServiceContainer()),
+                new Router(controllerContainer),
                 new Configurator(),
                 new Environment(),
                 new DataSourceProvider()
@@ -95,6 +103,37 @@ public final class AppTest {
 
             assertEquals(response.code(), 200);
             assertFalse(response.body().string().contains(invalidUrl));
+        });
+    }
+
+    @Test
+    public void testCreateCheckUrlWithValidUrl() {
+        JavalinTest.test(app, (server, client) -> {
+            var url = "https://example.com/";
+            var entity = new Url(url);
+            UrlRepository.insert(entity);
+
+            var requestBody = "urlId=" + entity.getId();
+
+            var response = client.post(NamedRoutes.urlCheckPath(entity.getId()), requestBody);
+            assertEquals(response.code(), 200);
+
+            var body = response.body().string();
+
+            assertTrue(body.contains("<td>1</td>"));
+            assertTrue(body.contains("<td>Test</td>"));
+            assertTrue(body.contains("<td>200</td>"));
+        });
+    }
+
+    @Test
+    public void testCreateCheckUrlWithInvalidUrlId() {
+        JavalinTest.test(app, (server, client) -> {
+            var id = 100L;
+            var requestBody = "urlId=" + id;
+            var response = client.post(NamedRoutes.urlCheckPath(id), requestBody);
+
+            assertEquals(response.code(), 404);
         });
     }
 }
