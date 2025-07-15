@@ -25,6 +25,7 @@ public final class UrlController extends ApplicationController {
     private final UrlCheckRepository urlCheckRepository;
 
     public void index(Context ctx) throws SQLException {
+        logger.info("Fetching all URLs");
         var urls = urlRepository.getEntities().stream()
                 .sorted(Comparator.nullsLast(Comparator.comparing(Url::getId).reversed()))
                 .toList();
@@ -42,8 +43,12 @@ public final class UrlController extends ApplicationController {
     public void show(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(0L);
 
+        logger.info("Fetching URL with id: {}", id);
         var url = urlRepository.find(id)
-                .orElseThrow(() -> new NotFoundResponse("Entity with id = " + id + " not found"));
+                .orElseThrow(() -> {
+                    logger.error("URL with id {} not found", id);
+                    return new NotFoundResponse("Entity with id = " + id + " not found");
+                });
 
         var checks = urlCheckRepository.findChecksByUrlId(id)
                 .stream()
@@ -64,13 +69,17 @@ public final class UrlController extends ApplicationController {
 
             if (urlRepository.findByName(uri).isEmpty()) {
                 urlRepository.insert(new Url(uri.toString()));
+
+                logger.info("URL successfully added: {}", uri);
                 ctx.sessionAttribute("flash", "Страница успешно добавлена");
             } else {
+                logger.info("URL already exists: {}", uri);
                 ctx.sessionAttribute("flash", "Страница уже существует");
             }
 
             ctx.redirect(NamedRoutes.urlsPath());
         } catch (IllegalArgumentException | MalformedURLException | URISyntaxException e) {
+            logger.error("Invalid URL: {}", url, e);
             ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.redirect(NamedRoutes.rootPath());
         }

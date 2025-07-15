@@ -14,9 +14,10 @@ public final class UrlCheckController extends ApplicationController {
 
         try {
             var result = checkService.check(urlId);
-            logger.info("Created check: {} | {}", result.getId(), result.getTitle());
+            logger.info("Check created: {} | {}", result.getId(), result.getTitle());
             ctx.sessionAttribute("flash", "Страница успешно проверена");
         } catch (Exception e) {
+            logger.error("Error creating check: {}", e.getMessage());
             ctx.sessionAttribute("flash", "Ошибка при проверке страницы: " + e.getMessage());
         }
 

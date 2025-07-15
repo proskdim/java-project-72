@@ -33,7 +33,7 @@ public final class UrlCheckRepository extends BaseRepository {
             statement.setString(3, entity.getH1());
             statement.setString(4, entity.getDescription());
             statement.setLong(5, entity.getUrlId());
-            LOGGER.info(statement.toString());
+            LOGGER.debug(statement.toString());
             statement.executeUpdate();
             var generatedKeys = statement.getGeneratedKeys();
             var timeStamp = new Timestamp(System.currentTimeMillis());
@@ -46,36 +46,7 @@ public final class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public List<UrlCheck> getEntities() throws SQLException {
-        try (
-                var connection = dataSource.getConnection();
-                var statement = connection.createStatement()
-        ) {
-            var sql = "SELECT * FROM %s".formatted(TABLE_NAME);
-            statement.executeQuery(sql);
-            var resultSet = statement.getResultSet();
-            var entities = new ArrayList<UrlCheck>();
-
-            while (resultSet.next()) {
-                var entity = new UrlCheck(
-                        resultSet.getInt("status_code"),
-                        resultSet.getString("title"),
-                        resultSet.getString("h1"),
-                        resultSet.getString("description"),
-                        resultSet.getLong("url_id")
-                );
-
-                entity.setId(resultSet.getLong("id"));
-                entity.setCreatedAt(resultSet.getTimestamp("created_at"));
-
-                entities.add(entity);
-            }
-
-            return entities;
-        }
-    }
-
-    public static List<UrlCheck> findChecksByUrlId(Long urlId) throws SQLException {
+    public List<UrlCheck> findChecksByUrlId(Long urlId) throws SQLException {
         var sql = """
                 SELECT *
                 FROM %s
@@ -87,7 +58,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql)
         ) {
             statement.setLong(1, urlId);
-            LOGGER.info(statement.toString());
+            LOGGER.debug(statement.toString());
             var resultSet = statement.executeQuery();
             var entities = new ArrayList<UrlCheck>();
 
@@ -109,7 +80,7 @@ public final class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static Map<Long, UrlCheck> findLastChecksByIds(List<Long> urlIds) throws SQLException {
+    public Map<Long, UrlCheck> findLastChecksByIds(List<Long> urlIds) throws SQLException {
         if (urlIds.isEmpty()) {
             return new HashMap<>();
         }
@@ -126,7 +97,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 index += 1;
             }
 
-            LOGGER.info(statement.toString());
+            LOGGER.debug(statement.toString());
             var resultSet = statement.executeQuery();
             var entities = new HashMap<Long, UrlCheck>();
 
@@ -149,7 +120,7 @@ public final class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    private static String lastCheckSql(int size) {
+    private String lastCheckSql(int size) {
         var placeholder = IntStream.range(0, size)
                 .mapToObj(i -> "?")
                 .collect(Collectors.joining(","));
@@ -173,8 +144,7 @@ public final class UrlCheckRepository extends BaseRepository {
                 )""".formatted(TABLE_NAME, TABLE_NAME, placeholder);
     }
 
-
-    public static void removeAll() throws SQLException {
+    public void removeAll() throws SQLException {
         var sql = "TRUNCATE TABLE " + TABLE_NAME;
 
         try (var connection = dataSource.getConnection();

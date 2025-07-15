@@ -42,8 +42,8 @@ public final class AppTest {
                 new DataSourceProvider()
         ).getApp();
 
-        UrlCheckRepository.removeAll();
-        UrlRepository.removeAll();
+        new UrlCheckRepository().removeAll();
+        new UrlRepository().removeAll();
     }
 
     @Test
@@ -68,7 +68,7 @@ public final class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var urlName = "https://example.com/";
             var url = new Url(urlName);
-            UrlRepository.insert(url);
+            new UrlRepository().insert(url);
 
             var response = client.get("/urls/" + url.getId());
             assertEquals(200, response.code());
@@ -112,7 +112,7 @@ public final class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var url = "https://example.com/";
             var entity = new Url(url);
-            UrlRepository.insert(entity);
+            new UrlRepository().insert(entity);
 
             var requestBody = "urlId=" + entity.getId();
 
@@ -124,6 +124,7 @@ public final class AppTest {
             assertTrue(body.contains("<td>1</td>"));
             assertTrue(body.contains("<td>Test</td>"));
             assertTrue(body.contains("<td>200</td>"));
+            assertTrue(body.contains("<td>Test description</td>"));
         });
     }
 
@@ -146,7 +147,7 @@ public final class AppTest {
 
             urls.forEach(url -> {
                 try {
-                    UrlRepository.insert(url);
+                    new UrlRepository().insert(url);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

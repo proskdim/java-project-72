@@ -15,7 +15,7 @@ public final class UrlRepository extends BaseRepository {
     public static final String TABLE_NAME = "urls";
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlRepository.class);
 
-    public static Optional<Url> find(Long id) throws SQLException {
+    public Optional<Url> find(Long id) throws SQLException {
         var sql = "SELECT * FROM %s WHERE id = ?".formatted(TABLE_NAME);
 
         try (
@@ -23,7 +23,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql)
         ) {
             statement.setLong(1, id);
-            LOGGER.atDebug().log(statement.toString());
+            LOGGER.debug(statement.toString());
             var resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -41,7 +41,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> findByName(String name) throws SQLException {
+    public Optional<Url> findByName(String name) throws SQLException {
         if (name == null) {
             return Optional.empty();
         }
@@ -53,7 +53,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql)
         ) {
             statement.setString(1, name);
-            LOGGER.atDebug().log(statement.toString());
+            LOGGER.debug(statement.toString());
             var resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -70,7 +70,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public static List<Url> getEntities() throws SQLException {
+    public List<Url> getEntities() throws SQLException {
         try (
                 var connection = dataSource.getConnection();
                 var statement = connection.createStatement()
@@ -96,7 +96,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public static void insert(Url entity) throws SQLException {
+    public void insert(Url entity) throws SQLException {
         var sql = "INSERT INTO %s (name, created_at) VALUES (?, NOW())".formatted(TABLE_NAME);
 
         try (
@@ -104,7 +104,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, entity.getName());
-            LOGGER.atDebug().log(statement.toString());
+            LOGGER.debug(statement.toString());
             statement.executeUpdate();
 
             var timeStamp = new Timestamp(System.currentTimeMillis());
@@ -118,7 +118,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public static void removeAll() throws SQLException {
+    public void removeAll() throws SQLException {
         var sql = "DELETE FROM " + TABLE_NAME;
 
         try (var connection = dataSource.getConnection();

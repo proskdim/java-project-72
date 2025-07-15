@@ -7,8 +7,19 @@ public final class DummyHttpResponse implements HttpResponse {
         return 200;
     }
 
+    // тег <title> на странице.
+    // тег <h1> на странице.
+    // тег <meta name="description" content="..."> на странице.
     @Override
     public String getBody() {
-        return "<html><head><title>Test</title></head><body><h1>Test</h1></body></html>";
+        return "<html>"
+             + "<head>"
+             + "<title>Test</title>"
+             + "<meta name='description' content='Test description'>"
+             + "</head>"
+             + "<body>"
+             + "<h1>Test</h1>"
+             + "</body>"
+             + "</html>";
     }
 }
