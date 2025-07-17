@@ -13,7 +13,7 @@ import org.jsoup.Jsoup;
 @Slf4j
 public final class UrlCheckController {
     public static void create(Context ctx) {
-        var id = ctx.formParamAsClass("urlId", Long.class).get();
+        var id = ctx.formParamAsClass("id", Long.class).get();
 
         try {
             var url = UrlRepository.find(id)

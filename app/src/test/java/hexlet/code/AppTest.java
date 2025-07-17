@@ -134,7 +134,7 @@ public final class AppTest {
         UrlRepository.insert(url);
 
         JavalinTest.test(app, (server, client) -> {
-            var requestBody = "urlId=" + url.getId();
+            var requestBody = "id=" + url.getId();
             var response = client.post(NamedRoutes.urlCheckPath(url.getId()), requestBody);
             assertEquals(200, response.code());
 
@@ -156,7 +156,7 @@ public final class AppTest {
     public void testCreateCheckUrlWithInvalidUrlId() {
         JavalinTest.test(app, (server, client) -> {
             var id = 100L;
-            var requestBody = "urlId=" + id;
+            var requestBody = "id=" + id;
             var response = client.post(NamedRoutes.urlCheckPath(id), requestBody);
 
             assertEquals(404, response.code());
