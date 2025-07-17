@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 @Setter
 public class BasePage {
     private String flash;
+    private String flashType;
 
     public String formatDate(Timestamp timestamp) {
         if (timestamp == null) {

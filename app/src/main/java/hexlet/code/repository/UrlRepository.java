@@ -1,8 +1,7 @@
 package hexlet.code.repository;
 
 import hexlet.code.model.Url;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public final class UrlRepository extends BaseRepository {
     public static final String TABLE_NAME = "urls";
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlRepository.class);
 
-    public Optional<Url> find(Long id) throws SQLException {
+    public static Optional<Url> find(Long id) throws SQLException {
         var sql = "SELECT * FROM %s WHERE id = ?".formatted(TABLE_NAME);
 
         try (
@@ -23,7 +22,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql)
         ) {
             statement.setLong(1, id);
-            LOGGER.debug(statement.toString());
+            log.debug(statement.toString());
             var resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -41,7 +40,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public Optional<Url> findByName(String name) throws SQLException {
+    public static Optional<Url> findByName(String name) throws SQLException {
         if (name == null) {
             return Optional.empty();
         }
@@ -53,7 +52,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql)
         ) {
             statement.setString(1, name);
-            LOGGER.debug(statement.toString());
+            log.debug(statement.toString());
             var resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -70,7 +69,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public List<Url> getEntities() throws SQLException {
+    public static List<Url> getEntities() throws SQLException {
         try (
                 var connection = dataSource.getConnection();
                 var statement = connection.createStatement()
@@ -96,7 +95,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public void insert(Url entity) throws SQLException {
+    public static void insert(Url entity) throws SQLException {
         var sql = "INSERT INTO %s (name, created_at) VALUES (?, NOW())".formatted(TABLE_NAME);
 
         try (
@@ -104,7 +103,7 @@ public final class UrlRepository extends BaseRepository {
                 var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, entity.getName());
-            LOGGER.debug(statement.toString());
+            log.debug(statement.toString());
             statement.executeUpdate();
 
             var timeStamp = new Timestamp(System.currentTimeMillis());
@@ -118,7 +117,7 @@ public final class UrlRepository extends BaseRepository {
         }
     }
 
-    public void removeAll() throws SQLException {
+    public static void removeAll() throws SQLException {
         var sql = "DELETE FROM " + TABLE_NAME;
 
         try (var connection = dataSource.getConnection();
