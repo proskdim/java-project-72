@@ -17,7 +17,7 @@ public final class App {
         app.start(new Environment().getPort());
     }
 
-    private static Javalin getApp() throws SQLException, IOException {
+    public static Javalin getApp() throws SQLException, IOException {
         return new AppService(
                 new Router(),
                 new Configurator(),
