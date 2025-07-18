@@ -58,8 +58,8 @@ public final class UrlController {
             return;
         }
 
-        var port = parsedUrl.getPort() != -1 ? ":" + parsedUrl.getPort() : "";
-        var name = parsedUrl.getProtocol() + "://" + parsedUrl.getHost() + port;
+        var name = parsedUrl.getProtocol() + "://" + parsedUrl.getHost()
+                + (parsedUrl.getPort() != -1 ? ":" + parsedUrl.getPort() : "");
 
         if (UrlRepository.findByName(name).isEmpty()) {
             var url = new Url(name);

@@ -10,6 +10,8 @@ import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 
+import java.sql.SQLException;
+
 @Slf4j
 public final class UrlCheckController {
     public static void create(Context ctx) {
@@ -35,8 +37,11 @@ public final class UrlCheckController {
             ctx.sessionAttribute("flash", "Страница успешно проверена");
             ctx.sessionAttribute("flash-type", "success");
         } catch (UnirestException e) {
-            ctx.sessionAttribute("flash", "Некорректный адрес");
+            ctx.sessionAttribute("flash", "Ошибка при проверке страницы: " + e.getMessage());
             ctx.sessionAttribute("flash-type", "danger");
+        } catch (SQLException e) {
+            ctx.sessionAttribute("flash", "Ошибка в работе СУБД: " + e.getMessage());
+            ctx.sessionAttribute("flashType", "danger");
         } catch (Exception e) {
             ctx.sessionAttribute("flash", e.getMessage());
             ctx.sessionAttribute("flash-type", "danger");
