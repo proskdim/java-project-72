@@ -27,7 +27,7 @@ public final class UrlRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
                 var entity = new Url(name);
 
                 entity.setId(id);
@@ -82,7 +82,7 @@ public final class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp("created_at");
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 var entity = new Url(name);
                 entity.setId(id);
@@ -106,7 +106,7 @@ public final class UrlRepository extends BaseRepository {
             log.debug(statement.toString());
             statement.executeUpdate();
 
-            var timeStamp = new Timestamp(System.currentTimeMillis());
+            var timeStamp = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
             var generatedKeys = statement.getGeneratedKeys();
 
             if (generatedKeys.next()) {

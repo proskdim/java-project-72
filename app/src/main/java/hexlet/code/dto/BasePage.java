@@ -3,8 +3,9 @@ package hexlet.code.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -12,12 +13,12 @@ public class BasePage {
     private String flash;
     private String flashType;
 
-    public String formatDate(Timestamp timestamp) {
-        if (timestamp == null) {
+    public String formatDate(LocalDateTime dateTime) {
+        if (dateTime == null) {
             return "";
         }
 
-        var formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        return formatter.format(timestamp);
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return dateTime.format(formatter);
     }
 }
