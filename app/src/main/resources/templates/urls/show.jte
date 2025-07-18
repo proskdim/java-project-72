@@ -25,7 +25,6 @@ content = @`
 
     <h2 class="mt-5">Проверки</h2>
     <form method="post" action="${NamedRoutes.urlCheckPath(page.getUrl().getId())}">
-        <input type="hidden" name="id" value="${page.getUrl().getId()}">
         <button type="submit" class="btn btn-primary">Запустить проверку</button>
     </form>
 
